@@ -96,7 +96,7 @@ const HeroSection = memo(({ scrollToSection }) => {
                 <div className="glass__noise" />
                 <Sparkles className="h-4 w-4 text-gold transition-all duration-300 group-hover:text-primary group-hover:rotate-12" />
                 <span className="text-sm font-semibold text-foreground">
-                  Excellence Since 2010
+                  Excellence Since 2021
                 </span>
               </div>
             </motion.div>
