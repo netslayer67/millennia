@@ -39,6 +39,8 @@ const TeacherProfilePage = lazy(() => import('./pages/teacher/ProfilePage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
 const AdmissionPage = lazy(() => import('./pages/AdmissionPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const KinderPage = lazy(() => import('./pages/KinderPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 // ---------------------------------------------
 
 // --- Impor Halaman Admin yang Sebenarnya ---
@@ -103,7 +105,6 @@ function AppRoutes() {
                   <HeroSection scrollToSection={scrollToSection} />
                   <ValuePropsSection valueProps={valueProps} />
                   <HowItWorksSection steps={howItWorksSteps} />
-                  {/* <TutorsSection tutors={tutors} handleCTAClick={handleCTAClick} /> */}
                   <PricingSection plans={pricingPlans} handleCTAClick={handleCTAClick} />
                   <TestimonialsSection testimonials={testimonials} />
                   <CtaSection handleCTAClick={handleCTAClick} />
@@ -112,6 +113,8 @@ function AppRoutes() {
               </>
             }
           />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/kinder" element={<KinderPage />} />
           <Route path="/faqs" element={<FaqPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/admission" element={<AdmissionPage />} />

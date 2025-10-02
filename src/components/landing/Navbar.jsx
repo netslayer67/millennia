@@ -11,6 +11,7 @@ import {
   Send,
   GraduationCap,
   Users,
+  Calendar
 } from "lucide-react";
 
 const LOGO_SRC = "/Millennia.svg";
@@ -155,14 +156,15 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
         id: "academics",
         label: "Academics",
         icon: GraduationCap,
-        href: "/academics",
+        href: "#",
         items: [
-          { id: "kindergarten", label: "Kindergarten", href: "/academics/kindergarten" },
+          { id: "kindergarten", label: "Kindergarten", href: "/kinder" },
           { id: "elementary", label: "Elementary", href: "/academics/elementary" },
           { id: "junior-high", label: "Junior High", href: "/academics/junior-high" },
           { id: "curriculum", label: "Curriculum & Assessment", href: "/academics/curriculum" },
         ],
       },
+      { type: "link", id: "calender", label: "School Calender", icon: Calendar, href: "/calender" },
       { type: "link", id: "blog", label: "Blog", icon: BookOpen, href: "/blog" },
       { type: "link", id: "contact", label: "Contact", icon: MessageCircle, href: "/contact" },
     ],
