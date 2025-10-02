@@ -36,6 +36,9 @@ const TeacherStudentsPage = lazy(() => import('./pages/teacher/StudentsPage'));
 const TeacherStudentDetailPage = lazy(() => import('./pages/teacher/StudentDetailPage'));
 const TeacherEarningsPage = lazy(() => import('./pages/teacher/EarningsPage'));
 const TeacherProfilePage = lazy(() => import('./pages/teacher/ProfilePage'));
+const FaqPage = lazy(() => import('./pages/FaqPage'));
+const AdmissionPage = lazy(() => import('./pages/AdmissionPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
 // ---------------------------------------------
 
 // --- Impor Halaman Admin yang Sebenarnya ---
@@ -109,6 +112,9 @@ function AppRoutes() {
               </>
             }
           />
+          <Route path="/faqs" element={<FaqPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/admission" element={<AdmissionPage />} />
           <Route path="/session" element={<SessionPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />

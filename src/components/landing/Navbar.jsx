@@ -82,7 +82,7 @@ const DecorativeBlob = React.memo(({ className = "", delay = 0 }) => (
   />
 ));
 
-/* DropdownPanel unchanged except icon/copy weight kept minimal */
+/* DropdownPanel unchanged except uses href when available */
 const DropdownPanel = React.memo(({ items, open, id, onNavigate }) => (
   <AnimatePresence>
     {open && (
@@ -105,7 +105,7 @@ const DropdownPanel = React.memo(({ items, open, id, onNavigate }) => (
                 transition={{ delay: idx * 0.04, duration: 0.18 }}
               >
                 <button
-                  onClick={() => onNavigate(it.id)}
+                  onClick={() => onNavigate(it.href ?? it.id)}
                   className="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium
                     text-foreground/80 hover:text-foreground
                     hover:bg-gradient-to-r hover:from-primary/10 hover:to-gold/5
@@ -138,28 +138,33 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
 
   const navStructure = useMemo(
     () => [
-      { type: "link", id: "home", label: "Home", icon: Home },
+      { type: "link", id: "home", label: "Home", icon: Home, href: "/" },
       {
         type: "dropdown",
         id: "about",
         label: "About Us",
         icon: Users,
-        items: [{ id: "faqs", label: "FAQs" }],
+        href: "/about",
+        items: [
+          { id: "about-overview", label: "About Millennia", href: "/about" },
+          { id: "faqs", label: "FAQs", href: "/faqs" },
+        ],
       },
       {
         type: "dropdown",
         id: "academics",
         label: "Academics",
         icon: GraduationCap,
+        href: "/academics",
         items: [
-          { id: "kindergarten", label: "Kindergarten" },
-          { id: "elementary", label: "Elementary" },
-          { id: "junior-high", label: "Junior High" },
-          { id: "curriculum", label: "Curriculum & Assessment" },
+          { id: "kindergarten", label: "Kindergarten", href: "/academics/kindergarten" },
+          { id: "elementary", label: "Elementary", href: "/academics/elementary" },
+          { id: "junior-high", label: "Junior High", href: "/academics/junior-high" },
+          { id: "curriculum", label: "Curriculum & Assessment", href: "/academics/curriculum" },
         ],
       },
-      { type: "link", id: "blog", label: "Blog", icon: BookOpen },
-      { type: "link", id: "contact", label: "Contact", icon: MessageCircle },
+      { type: "link", id: "blog", label: "Blog", icon: BookOpen, href: "/blog" },
+      { type: "link", id: "contact", label: "Contact", icon: MessageCircle, href: "/contact" },
     ],
     []
   );
@@ -181,26 +186,52 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /**
+   * Improved navigation logic:
+   * - If argument looks like a path (starts with '/'), navigate to that path (sanitized).
+   * - Else, if scrollToSection exists, call it (for anchor-like behavior).
+   * - Else, try to find element by id and scrollIntoView.
+   */
   const handleNavigate = useCallback(
     (target) => {
+      // close menus
       setMobileOpen(false);
       aboutDropdown.setOpen(false);
       academicsDropdown.setOpen(false);
 
+      if (!target) return;
+
+      // sanitize
+      const safe = sanitizeInput(String(target));
+
+      // if starts with '/', treat as route path
+      if (safe.startsWith("/")) {
+        // Use location.assign so browser handles it normally; this works in SPA & full page.
+        // If you later use react-router and want client-side navigation, replace with router.push.
+        window.location.assign(safe);
+        return;
+      }
+
+      // If scrollToSection provided, call it
       if (typeof scrollToSection === "function") {
-        scrollToSection(target);
+        scrollToSection(safe);
+        return;
+      }
+
+      // fallback: try element by id
+      const el = document.getElementById(safe);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
-        const element = document.getElementById(target);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        // if nothing matches, no-op
+        console.warn("Navigation target not found:", safe);
       }
     },
-    [scrollToSection]
+    [aboutDropdown, academicsDropdown, scrollToSection]
   );
 
   const handleApply = useCallback(() => {
-    window.open("/apply", "_blank");
+    window.open("/admission", "_blank");
   }, []);
 
   useEffect(() => {
@@ -258,7 +289,7 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
           <div className="flex items-center justify-between h-20 lg:h-24 transition-all duration-300">
             {/* Logo & brand */}
             <motion.button
-              onClick={() => handleNavigate("home")}
+              onClick={() => handleNavigate("/")}
               className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-ring/30 rounded-lg px-2 -ml-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.985 }}
@@ -298,7 +329,7 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
                   return (
                     <motion.button
                       key={nav.id}
-                      onClick={() => handleNavigate(nav.id)}
+                      onClick={() => handleNavigate(nav.href ?? nav.id)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.96 }}
                       className="group relative px-3 py-2 rounded-lg text-sm font-semibold
@@ -361,7 +392,7 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              {/* Desktop CTA - luxury white -> maroon accent gradient (token-based) */}
+              {/* Desktop CTA */}
               <motion.button
                 onClick={handleApply}
                 whileHover={{ scale: 1.04, boxShadow: "0 10px 40px rgba(16,24,40,0.12)" }}
@@ -448,7 +479,7 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
                           initial={{ opacity: 0, x: 16 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05, duration: 0.2 }}
-                          onClick={() => handleNavigate(nav.id)}
+                          onClick={() => handleNavigate(nav.href ?? nav.id)}
                           className="w-full flex items-center gap-3 p-4 rounded-xl text-left font-semibold text-foreground/80 hover:text-foreground hover:bg-gradient-to-r hover:from-primary/10 hover:to-gold/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring/30"
                         >
                           <div className="p-2 rounded-lg bg-gradient-to-br from-primary/18 to-gold/10">
@@ -488,7 +519,7 @@ const Navbar = React.memo(function Navbar({ className = "", scrollToSection }) {
                                     initial={{ opacity: 0, x: 8 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: subIdx * 0.03, duration: 0.18 }}
-                                    onClick={() => handleNavigate(it.id)}
+                                    onClick={() => handleNavigate(it.href ?? it.id)}
                                     className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-foreground/75 hover:text-foreground hover:bg-surface/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring/30"
                                   >
                                     <span className="flex items-center gap-2">

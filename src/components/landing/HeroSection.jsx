@@ -195,7 +195,7 @@ const HeroSection = memo(({ scrollToSection }) => {
               {/* Image Container */}
               <div className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-gradient-to-br from-primary/5 to-gold/5">
                 <img
-                  src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=90"
+                  src="https://millenniaws.sch.id/wp-content/uploads/revslider/main-slider/MWS-Makerspace-Slider.jpeg"
                   alt="Premium education at Millennia World School"
                   loading="eager"
                   className="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
