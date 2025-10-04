@@ -1,6 +1,4 @@
-// src/components/Footer.jsx
-import React, { memo, useCallback, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { memo, useCallback, useState } from "react";
 import {
   Facebook,
   Twitter,
@@ -8,200 +6,336 @@ import {
   Mail,
   Phone,
   MapPin,
-  ChevronRight,
 } from "lucide-react";
 
-const LOGO = "/MWS-Long.svg";
+const LOGO_SRC = "/MWS-Long.svg";
 
-// --- Sanitation helpers ---
+// Static framework text (module-level constant)
+const FRAMEWORK_TEXT = "Our curriculum utilizes the full range of activities that are designed to enrich creative young minds. We use Finnish Waldorf Framework integrated with Indonesian National Curriculum, subjects are seamlessly integrated with each other providing nuance, context, understanding and deeper learning. Our deep and varied curriculum includes age-appropriate, rigorous academic work, as well as rich artistic experiences that combine to make learning an adventure, not a chore.";
+
+// Sanitization utilities
 const sanitizeHref = (href = "") => {
   try {
-    const s = String(href).trim();
-    if (!s) return "#";
-    if (/^\s*(javascript|data|vbscript):/i.test(s)) return "#";
-    return s;
+    const cleaned = String(href).trim();
+    if (!cleaned) return "#";
+    if (/^\s*(javascript|data|vbscript):/i.test(cleaned)) return "#";
+    return cleaned;
   } catch {
     return "#";
   }
 };
-const sanitizeText = (str = "") =>
-  String(str)
+
+const sanitizeEmail = (str = "") => {
+  return String(str)
     .replace(/<script.*?>.*?<\/script>/gi, "")
     .replace(/on\w+\s*=/gi, "")
     .replace(/javascript:/gi, "")
     .trim()
-    .slice(0, 500);
+    .slice(0, 100);
+};
 
-// --- Social Icon Button (clean, centered, consistent) ---
-const SocialIconBtn = memo(({ Icon, label, href }) => (
+// Lightweight icon wrapper
+const Icon = memo(({ Component, size = 16 }) => (
+  <Component width={size} height={size} strokeWidth={1.6} aria-hidden="true" />
+));
+Icon.displayName = "Icon";
+
+// Social button component
+const SocialButton = memo(({ IconComp, label, href }) => (
   <a
     href={sanitizeHref(href)}
     target="_blank"
     rel="noopener noreferrer"
     aria-label={label}
+    className="glass p-2.5 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+    style={{
+      background: 'linear-gradient(135deg, hsl(var(--muted)), hsl(var(--surface)))',
+      border: '1px solid hsl(var(--border) / 0.3)',
+      color: 'hsl(var(--foreground))',
+    }}
   >
-    {/* Make sure icon sits above glass pseudo layers */}
-    <span className="relative z-10 block w-5 h-5">
-      {/* Explicit strokeWidth for consistent weight across icons */}
-      <Icon className="w-full h-full" strokeWidth={1.6} aria-hidden="true" />
-    </span>
-
-    {/* subtle decorative rim — below the icon (kept for polish, non-interfering) */}
-    <span
-      aria-hidden="true"
-      className="absolute inset-0 pointer-events-none rounded-xl"
-      style={{
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -6px 12px rgba(0,0,0,0.03)",
-      }}
-    />
+    <Icon Component={IconComp} size={20} />
   </a>
 ));
+SocialButton.displayName = "SocialButton";
 
-// --- Footer ---
-const Footer = memo(function Footer({ scrollToSection } = {}) {
+// Contact info row
+const ContactRow = memo(({ IconComp, text, iconColor = 'hsl(var(--emerald))' }) => (
+  <div className="flex items-center gap-2" style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))' }}>
+    <span style={{ color: iconColor }}>
+      <Icon Component={IconComp} size={16} />
+    </span>
+    <span>{text}</span>
+  </div>
+));
+ContactRow.displayName = "ContactRow";
+
+// Main Footer Component
+const Footer = memo(function Footer({ scrollToSection }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
 
-  const frameworkText = useMemo(
-    () =>
-      "Our curriculum utilizes the full range of activities that are designed to enrich creative young minds. We use Finnish Waldorf Framework integrated with Indonesian National Curriculum, subjects are seamlessly integrated with each other providing nuance, context, understanding and deeper learning. Our deep and varied curriculum includes age-appropriate, rigorous academic work, as well as rich artistic experiences that combine to make learning an adventure, not a chore.",
-    []
-  );
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
 
-  const onSubmitEmail = useCallback(
-    (e) => {
-      e.preventDefault();
-      const value = sanitizeText(email);
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-      if (!emailPattern.test(value)) {
-        setStatus("error");
-        return;
-      }
-      setStatus("ok");
-      setEmail("");
+    const cleaned = sanitizeEmail(email);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+    if (!emailRegex.test(cleaned)) {
+      setStatus("error");
       setTimeout(() => setStatus(null), 3000);
-    },
-    [email]
-  );
+      return;
+    }
 
-  const handleScrollTo = useCallback(
-    (id) => {
-      if (typeof scrollToSection === "function") {
-        scrollToSection(id);
-      } else {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    },
-    [scrollToSection]
-  );
+    setStatus("success");
+    setEmail("");
+    setTimeout(() => setStatus(null), 3000);
+  }, [email]);
+
+  const handleEmailChange = useCallback((e) => {
+    setEmail(e.target.value);
+  }, []);
+
+  const handleLogoClick = useCallback(() => {
+    if (scrollToSection) {
+      scrollToSection("home");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [scrollToSection]);
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer
-      className="relative overflow-hidden bg-background text-foreground border-t border-border/10"
+      className="relative overflow-hidden"
+      style={{
+        background: 'hsl(var(--background))',
+        color: 'hsl(var(--foreground))',
+        borderTop: '1px solid hsl(var(--border) / 0.1)',
+      }}
       aria-labelledby="footer-heading"
     >
-      {/* Subtle premium grid pattern */}
+      <h2 id="footer-heading" className="sr-only">Footer</h2>
+
+      {/* Grid pattern overlay */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-5"
-        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{
-          backgroundImage:
-            "linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-          maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 18%, rgba(0,0,0,0) 80%)",
+          backgroundImage: `
+            linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px),
+            linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)',
         }}
+        aria-hidden="true"
       />
 
-      {/* Decorative animated blobs */}
-      <div className="absolute -top-16 -left-24 w-72 h-72 rounded-full blur-3xl bg-primary/15 animate-blob-left opacity-80 pointer-events-none" />
-      <div className="absolute -bottom-20 -right-24 w-72 h-72 rounded-full blur-3xl bg-gold/12 animate-blob-right opacity-80 pointer-events-none" />
+      {/* Decorative blobs */}
+      <div
+        className="absolute -top-16 -left-24 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-70"
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)',
+          animation: 'blobFloat 14s ease-in-out infinite',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute -bottom-20 -right-24 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-70"
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--gold) / 0.1), transparent 70%)',
+          animation: 'blobFloat 16s ease-in-out infinite 2s',
+        }}
+        aria-hidden="true"
+      />
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="relative z-10 container mx-auto" style={{ padding: 'clamp(3rem, 8vw, 4rem) clamp(1rem, 3vw, 2rem)' }}>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+
           {/* Column 1: Branding */}
-          <div className="flex flex-col gap-4">
+          <div className="space-y-4">
             <button
-              className="flex items-center gap-3 focus:outline-none"
-              onClick={() => handleScrollTo("home")}
-              aria-label="Millennia Home"
+              onClick={handleLogoClick}
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-lg transition-opacity duration-200 hover:opacity-90"
+              style={{ outlineColor: 'hsl(var(--ring) / 0.3)' }}
+              aria-label="Millennia World School Home"
             >
-              <img src={LOGO} alt="Millennia World School" className="h-10" draggable={false} />
+              <img
+                src={LOGO_SRC}
+                alt="Millennia World School"
+                className="h-10"
+                width="160"
+                height="40"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+              />
             </button>
-            <p className="text-sm text-muted-foreground max-w-[420px] leading-relaxed">
+
+            <p
+              className="leading-relaxed max-w-[420px]"
+              style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))' }}
+            >
               Achieving High Standards — a refined, international education that prepares students for a bold future.
             </p>
 
-            {/* CLEAN ICON ROW: uniform squares with good spacing */}
-            <div className="flex items-center gap-3 mt-2">
-              <SocialIconBtn Icon={Facebook} label="Facebook" href="https://facebook.com" />
-              <SocialIconBtn Icon={Twitter} label="Twitter" href="https://twitter.com" />
-              <SocialIconBtn Icon={Instagram} label="Instagram" href="https://instagram.com" />
+            {/* Social icons */}
+            <div className="flex items-center gap-3 pt-2">
+              <SocialButton IconComp={Facebook} label="Facebook" href="https://facebook.com" />
+              <SocialButton IconComp={Twitter} label="Twitter" href="https://twitter.com" />
+              <SocialButton IconComp={Instagram} label="Instagram" href="https://instagram.com" />
             </div>
 
-            <div className="mt-4 text-xs text-muted-foreground space-y-1">
+            <div className="pt-3 space-y-1" style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>
               <span className="block">Millennia World School</span>
               <span className="block">International Curriculum • Personalized Mentorship</span>
             </div>
           </div>
 
           {/* Column 2: Framework */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Our Framework</h3>
-            <div className="glass glass-card glass--frosted p-4 rounded-xl transition-transform duration-300 hover:translate-y-[-4px]">
+          <div className="space-y-4">
+            <h3
+              className="font-semibold uppercase tracking-wider"
+              style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))' }}
+            >
+              Our Framework
+            </h3>
+
+            <div className="glass glass--frosted rounded-xl transition-transform duration-300 hover:translate-y-[-3px]" style={{ padding: 'clamp(1rem, 3vw, 1.25rem)' }}>
               <div className="glass__noise" />
-              <p className="text-sm text-foreground leading-relaxed">{frameworkText}</p>
+              <p
+                className="relative z-10 leading-relaxed"
+                style={{ fontSize: '0.875rem', color: 'hsl(var(--foreground))' }}
+              >
+                {FRAMEWORK_TEXT}
+              </p>
             </div>
           </div>
 
           {/* Column 3: Contact */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Contact Us</h3>
-            <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-emerald" />
-                <span>info@millenniaws.sch.id</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-emerald" />
-                <span>+62 812-3456-7890</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-emerald" />
-                <span>Millennia Campus, Jakarta, Indonesia</span>
-              </div>
+          <div className="space-y-4">
+            <h3
+              className="font-semibold uppercase tracking-wider"
+              style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))' }}
+            >
+              Contact Us
+            </h3>
+
+            <div className="space-y-3">
+              <ContactRow IconComp={Mail} text="info@millenniaws.sch.id" />
+              <ContactRow IconComp={Phone} text="+62 812-3456-7890" />
+              <ContactRow IconComp={MapPin} text="Millennia Campus, Jakarta, Indonesia" />
             </div>
 
             {/* Newsletter */}
-            <form onSubmit={onSubmitEmail} className="mt-4 flex w-full max-w-sm">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                aria-label="Email"
-                className="flex-1 px-3 py-2 rounded-l-lg bg-input border border-border/40 text-sm focus:ring-2 focus:ring-ring/30 focus:outline-none transition-all duration-300"
-              />
-              <Button type="submit" className="rounded-l-none px-4 bg-gold text-gold-foreground hover:bg-gold/90 transition-all duration-300">
-                Subscribe
-              </Button>
-            </form>
-            {status === "ok" && <p className="text-xs text-emerald mt-2">Subscribed successfully!</p>}
-            {status === "error" && <p className="text-xs text-primary mt-2">Invalid email address.</p>}
+            <div className="pt-3 space-y-2">
+              <div className="flex w-full max-w-sm gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  placeholder="Enter your email"
+                  aria-label="Email for newsletter"
+                  className="flex-1 px-3 py-2 rounded-lg border outline-none transition-all duration-200"
+                  style={{
+                    background: 'hsl(var(--input))',
+                    borderColor: 'hsl(var(--border) / 0.4)',
+                    color: 'hsl(var(--foreground))',
+                    fontSize: '0.875rem',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'hsl(var(--ring))';
+                    e.target.style.boxShadow = '0 0 0 3px hsl(var(--ring) / 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'hsl(var(--border) / 0.4)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSubmit(e);
+                    }
+                  }}
+                  maxLength={100}
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                  style={{
+                    background: 'hsl(var(--gold))',
+                    color: 'hsl(var(--gold-foreground))',
+                    fontSize: '0.875rem',
+                  }}
+                >
+                  Subscribe
+                </button>
+              </div>
+
+              {/* Status messages */}
+              {status === "success" && (
+                <p style={{ fontSize: '0.75rem', color: 'hsl(var(--emerald))' }}>
+                  Subscribed successfully!
+                </p>
+              )}
+              {status === "error" && (
+                <p style={{ fontSize: '0.75rem', color: 'hsl(var(--primary))' }}>
+                  Invalid email address.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-border/20 flex flex-col md:flex-row items-center justify-between text-xs text-muted-foreground gap-2">
-          <span>© {new Date().getFullYear()} Millennia World School. All rights reserved.</span>
-          <div className="flex gap-4">
-            <a href="#privacy" className="hover:text-foreground transition-colors duration-300">Privacy</a>
-            <a href="#terms" className="hover:text-foreground transition-colors duration-300">Terms</a>
+        <div
+          className="flex flex-col md:flex-row items-center justify-between gap-3 pt-6"
+          style={{
+            marginTop: 'clamp(2.5rem, 6vw, 3rem)',
+            borderTop: '1px solid hsl(var(--border) / 0.2)',
+            fontSize: '0.75rem',
+            color: 'hsl(var(--muted-foreground))',
+          }}
+        >
+          <span>© {currentYear} Millennia World School. All rights reserved.</span>
+
+          <div className="flex items-center gap-4">
+            <a
+              href="#privacy"
+              className="transition-colors duration-200"
+              style={{ color: 'hsl(var(--muted-foreground))' }}
+              onMouseEnter={(e) => e.target.style.color = 'hsl(var(--foreground))'}
+              onMouseLeave={(e) => e.target.style.color = 'hsl(var(--muted-foreground))'}
+            >
+              Privacy
+            </a>
+            <a
+              href="#terms"
+              className="transition-colors duration-200"
+              style={{ color: 'hsl(var(--muted-foreground))' }}
+              onMouseEnter={(e) => e.target.style.color = 'hsl(var(--foreground))'}
+              onMouseLeave={(e) => e.target.style.color = 'hsl(var(--muted-foreground))'}
+            >
+              Terms
+            </a>
           </div>
         </div>
       </div>
+
+      {/* CSS animations */}
+      <style>{`
+        @keyframes blobFloat {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(15px, -20px) scale(1.05); }
+          66% { transform: translate(-20px, 15px) scale(0.95); }
+        }
+      `}</style>
     </footer>
   );
 });
+
+Footer.displayName = "Footer";
 
 export default Footer;
