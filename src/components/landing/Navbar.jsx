@@ -1,6 +1,4 @@
-// src/components/Navbar.jsx (ULTRA OPTIMIZED for Mobile)
-// Removes heavy backdrop-blur, minimizes animations, optimizes re-renders
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
   Menu,
   X,
@@ -16,7 +14,7 @@ import {
 
 const LOGO_SRC = "/Millennia.webp";
 
-/* sanitize */
+// Sanitize input
 const sanitizeInput = (value) => {
   if (!value) return "";
   return value
@@ -27,7 +25,7 @@ const sanitizeInput = (value) => {
     .slice(0, 200);
 };
 
-/* ---------- stable nav structure ---------- */
+// Static nav structure (defined once, never recreated)
 const NAV_STRUCTURE = [
   { type: "link", id: "home", label: "Home", icon: Home, href: "/" },
   {
@@ -50,73 +48,91 @@ const NAV_STRUCTURE = [
     items: [
       { id: "kindergarten", label: "Kindergarten", href: "/kinder" },
       { id: "elementary", label: "Elementary", href: "/elemen" },
-      { id: "junior-high", label: "Junior High", href: "/academics/junior-high" },
-      { id: "curriculum", label: "Curriculum & Assessment", href: "/academics/curriculum" },
+      { id: "junior-high", label: "Junior High", href: "/junior" },
+      { id: "curriculum", label: "Curriculum & Assessment", href: "/curriculum" },
     ],
   },
-  { type: "link", id: "calender", label: "School Calender", icon: Calendar, href: "/calender" },
+  { type: "link", id: "calender", label: "School Calendar", icon: Calendar, href: "/calender" },
   { type: "link", id: "blog", label: "Blog", icon: BookOpen, href: "/blog" },
   { type: "link", id: "contact", label: "Contact", icon: MessageCircle, href: "/contact" },
 ];
 
-/* ---------- useDropdown ---------- */
-function useDropdown(initial = false) {
-  const [open, setOpen] = useState(initial);
+// Optimized dropdown hook (minimal state updates)
+function useDropdown() {
+  const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const closeTimeoutRef = useRef(null);
 
-  const toggle = useCallback(() => {
-    setOpen((v) => !v);
-  }, []);
+  const toggle = useCallback(() => setOpen((v) => !v), []);
+  const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     if (!open) return;
-    function onDoc(e) {
-      if (!ref.current?.contains(e.target)) setOpen(false);
-    }
-    function onKey(e) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("pointerdown", onDoc);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onDoc);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
 
-  return { open, toggle, ref, setOpen };
+    const onPointer = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        close();
+      }
+    };
+
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+
+    // Use capture phase for better performance
+    document.addEventListener("pointerdown", onPointer, { capture: true, passive: true });
+    document.addEventListener("keydown", onKey, { passive: true });
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointer, { capture: true });
+      document.removeEventListener("keydown", onKey);
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, [open, close]);
+
+  return { open, toggle, close, ref };
 }
 
-/* ---------- Lightweight Icon Component ---------- */
-const NavIcon = memo(({ Icon, className = "" }) => (
-  <Icon className={className} strokeWidth={1.6} aria-hidden="true" />
+// Lightweight icon wrapper (prevents re-renders)
+const NavIcon = memo(({ Icon, size = 16 }) => (
+  <Icon width={size} height={size} strokeWidth={1.6} aria-hidden="true" />
 ));
 NavIcon.displayName = "NavIcon";
 
-/* ---------- Desktop Dropdown Panel (NO Framer Motion) ---------- */
-const DropdownPanel = memo(({ items, open, onNavigate }) => {
-  if (!open) return null;
+// Desktop dropdown panel (no animations, pure CSS)
+const DropdownPanel = memo(({ items, isOpen, onNavigate }) => {
+  if (!isOpen) return null;
 
   return (
-    <div
-      className="absolute left-0 top-full mt-3 z-50 opacity-0 animate-fade-in"
-      style={{
-        animation: 'fadeIn 0.2s ease-out forwards',
-      }}
-    >
-      <div className="glass glass--frosted glass--deep rounded-lg shadow-glass-lg border border-border/40 overflow-hidden min-w-[220px]">
-        <ul role="menu" className="relative z-10 p-2 space-y-1">
-          {items.map((it) => (
-            <li key={it.id}>
+    <div className="absolute left-0 top-full mt-2 z-50">
+      <div
+        className="glass glass--frosted rounded-xl border overflow-hidden shadow-lg min-w-[220px]"
+        style={{
+          borderColor: 'hsl(var(--border) / 0.3)',
+          animation: 'dropdownFade 0.15s ease-out'
+        }}
+      >
+        <div className="glass__noise" />
+        <ul role="menu" className="relative z-10 p-2 space-y-0.5">
+          {items.map((item) => (
+            <li key={item.id}>
               <button
-                onClick={() => onNavigate(it.href ?? it.id)}
-                className="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium
-                  text-foreground/80 hover:text-foreground
-                  hover:bg-gradient-to-r hover:from-primary/10 hover:to-gold/5
-                  transition-colors duration-200"
+                onClick={() => onNavigate(item.href ?? item.id)}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                style={{
+                  color: 'hsl(var(--foreground) / 0.8)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))';
+                  e.currentTarget.style.background = 'linear-gradient(to right, hsl(var(--primary) / 0.08), hsl(var(--gold) / 0.04))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground) / 0.8)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
                 role="menuitem"
               >
-                {it.label}
+                {item.label}
               </button>
             </li>
           ))}
@@ -127,23 +143,35 @@ const DropdownPanel = memo(({ items, open, onNavigate }) => {
 });
 DropdownPanel.displayName = "DropdownPanel";
 
-/* ---------- Mobile Dropdown (NO Framer Motion) ---------- */
-const MobileDropdown = memo(({ items, open, onNavigate }) => {
-  if (!open) return null;
+// Mobile dropdown (lightweight)
+const MobileDropdown = memo(({ items, isOpen, onNavigate }) => {
+  if (!isOpen) return null;
 
   return (
-    <div className="pl-4 mt-1 space-y-1">
-      {items.map((it) => (
+    <div className="pl-3 mt-1 space-y-0.5">
+      {items.map((item) => (
         <button
-          key={it.id}
-          onClick={() => onNavigate(it.href ?? it.id)}
-          className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium 
-            text-foreground/75 hover:text-foreground hover:bg-surface/50 
-            transition-colors duration-200"
+          key={item.id}
+          onClick={() => onNavigate(item.href ?? item.id)}
+          className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+          style={{
+            color: 'hsl(var(--foreground) / 0.75)',
+          }}
+          onTouchStart={(e) => {
+            e.currentTarget.style.color = 'hsl(var(--foreground))';
+            e.currentTarget.style.background = 'hsl(var(--surface) / 0.5)';
+          }}
+          onTouchEnd={(e) => {
+            e.currentTarget.style.color = 'hsl(var(--foreground) / 0.75)';
+            e.currentTarget.style.background = 'transparent';
+          }}
         >
           <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
-            {it.label}
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: 'hsl(var(--gold) / 0.6)' }}
+            />
+            {item.label}
           </span>
         </button>
       ))}
@@ -152,193 +180,245 @@ const MobileDropdown = memo(({ items, open, onNavigate }) => {
 });
 MobileDropdown.displayName = "MobileDropdown";
 
-/* ---------- Main Navbar Component ---------- */
-const Navbar = memo(function Navbar({ className = "", scrollToSection }) {
+// Main Navbar
+const Navbar = memo(function Navbar({ scrollToSection }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const aboutDropdown = useDropdown(false);
-  const academicsDropdown = useDropdown(false);
+  const aboutDropdown = useDropdown();
+  const academicsDropdown = useDropdown();
 
-  // Optimized scroll handler with debouncing
+  // Ultra-optimized scroll handler (RAF + passive listener)
   useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 20);
-        ticking = false;
+    let rafId = null;
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        if (Math.abs(currentScrollY - lastScrollY) > 10) {
+          setScrolled(currentScrollY > 20);
+          lastScrollY = currentScrollY;
+        }
+        rafId = null;
       });
     };
 
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // Initial check
+    setScrolled(window.scrollY > 20);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  // Navigation handler
+  // Navigation handler (memoized with stable deps)
   const handleNavigate = useCallback(
     (target) => {
       setMobileOpen(false);
-      aboutDropdown.setOpen(false);
-      academicsDropdown.setOpen(false);
+      aboutDropdown.close();
+      academicsDropdown.close();
 
       if (!target) return;
 
       const safe = sanitizeInput(String(target));
+
       if (safe.startsWith("/")) {
         window.location.assign(safe);
         return;
       }
-      if (typeof scrollToSection === "function") {
+
+      if (scrollToSection) {
         scrollToSection(safe);
         return;
       }
+
       const el = document.getElementById(safe);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     },
-    [aboutDropdown.setOpen, academicsDropdown.setOpen, scrollToSection]
+    [aboutDropdown, academicsDropdown, scrollToSection]
   );
 
   const handleApply = useCallback(() => {
-    window.open("/admission", "_blank");
+    window.open("/admission", "_blank", "noopener,noreferrer");
   }, []);
 
-  // Lock body scroll when mobile menu open
+  const toggleMobile = useCallback(() => setMobileOpen((v) => !v), []);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+
+  // Lock body scroll on mobile menu (optimized)
   useEffect(() => {
     if (mobileOpen) {
-      document.body.style.overflow = "hidden";
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+
       return () => {
-        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        window.scrollTo(0, scrollY);
       };
     }
   }, [mobileOpen]);
 
   return (
     <>
-      {/* Header - NO Framer Motion, Pure CSS transitions */}
+      {/* Header */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${className}`}
+        className="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
         style={{
-          backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+          backgroundColor: scrolled
+            ? 'hsl(var(--background) / 0.95)'
+            : 'hsl(var(--background) / 0)',
+          borderBottom: scrolled ? '1px solid hsl(var(--border) / 0.2)' : '1px solid transparent',
         }}
       >
-        {/* REMOVED backdrop-blur - this is the heaviest performance killer on mobile */}
-        <div className="w-full">
-          <div className="container mx-auto px-4 lg:px-6">
-            <div className="flex items-center justify-between h-20 lg:h-24">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="flex items-center justify-between h-20 lg:h-24">
 
-              {/* Logo */}
+            {/* Logo */}
+            <button
+              onClick={() => handleNavigate("/")}
+              className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 rounded-lg px-2 -ml-2 transition-opacity duration-200 hover:opacity-90"
+              style={{
+                outlineColor: 'hsl(var(--ring) / 0.3)',
+              }}
+              aria-label="Homepage"
+            >
+              <img
+                src={LOGO_SRC}
+                alt="Millennia World School"
+                className="w-[70px] lg:w-[70px] md:w-[60px]"
+                width="70"
+                height="70"
+                loading="eager"
+                decoding="async"
+              />
+              <div className="hidden md:flex flex-col leading-tight">
+                <span
+                  className="font-bold text-base bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary)))',
+                  }}
+                >
+                  Millennia World School
+                </span>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: 'hsl(var(--muted-foreground))' }}
+                >
+                  Kindergarten • Elementary • Junior High
+                </span>
+              </div>
+            </button>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+              {NAV_STRUCTURE.map((nav) => {
+                if (nav.type === "link") {
+                  return (
+                    <button
+                      key={nav.id}
+                      onClick={() => handleNavigate(nav.href ?? nav.id)}
+                      className="group relative px-3 py-2 rounded-lg text-sm font-semibold transition-colors duration-200"
+                      style={{ color: 'hsl(var(--foreground) / 0.75)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--foreground) / 0.75)'}
+                      aria-label={nav.label}
+                    >
+                      <span className="flex items-center gap-2">
+                        <NavIcon Icon={nav.icon} size={16} />
+                        <span>{nav.label}</span>
+                      </span>
+                    </button>
+                  );
+                }
+
+                if (nav.type === "dropdown") {
+                  const dropdown = nav.id === "about" ? aboutDropdown : academicsDropdown;
+                  return (
+                    <div key={nav.id} ref={dropdown.ref} className="relative">
+                      <button
+                        onClick={dropdown.toggle}
+                        aria-expanded={dropdown.open}
+                        className="group inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors duration-200"
+                        style={{ color: 'hsl(var(--foreground) / 0.75)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'hsl(var(--foreground))'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'hsl(var(--foreground) / 0.75)'}
+                      >
+                        <NavIcon Icon={nav.icon} size={16} />
+                        <span>{nav.label}</span>
+                        <ChevronDown
+                          width={16}
+                          height={16}
+                          strokeWidth={1.6}
+                          style={{
+                            transform: dropdown.open ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s ease',
+                          }}
+                        />
+                      </button>
+
+                      <DropdownPanel
+                        items={nav.items}
+                        isOpen={dropdown.open}
+                        onNavigate={handleNavigate}
+                      />
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </nav>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              {/* Desktop Apply Button */}
               <button
-                onClick={() => handleNavigate("/")}
-                className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-ring/30 rounded-lg px-2 -ml-2"
-                aria-label="Homepage"
+                onClick={handleApply}
+                className="hidden lg:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm border shadow-md transition-all duration-200 hover:scale-[1.02]"
+                style={{
+                  background: 'linear-gradient(to right, hsl(var(--card)), hsl(var(--primary) / 0.08), hsl(var(--card)))',
+                  color: 'hsl(var(--primary))',
+                  borderColor: 'hsl(var(--border) / 0.2)',
+                }}
               >
-                <img
-                  src={LOGO_SRC}
-                  alt="Millennia World School"
-                  className="w-[70px] lg:w-[70px] md:w-[60px]"
-                  loading="eager"
-                  decoding="sync"
-                />
-                <div className="hidden md:flex flex-col leading-tight">
-                  <span className="font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
-                    Millennia World School
-                  </span>
-                  <span className="text-xs text-muted-foreground font-medium">
-                    Kindergarten • Elementary • Junior High
-                  </span>
-                </div>
+                <Send width={16} height={16} strokeWidth={1.6} />
+                Apply Now
               </button>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
-                {NAV_STRUCTURE.map((nav) => {
-                  if (nav.type === "link") {
-                    return (
-                      <button
-                        key={nav.id}
-                        onClick={() => handleNavigate(nav.href ?? nav.id)}
-                        className="group relative px-3 py-2 rounded-lg text-sm font-semibold 
-                          text-foreground/75 hover:text-foreground transition-colors"
-                        aria-label={nav.label}
-                      >
-                        <span className="flex items-center gap-2">
-                          <NavIcon Icon={nav.icon} className="w-4 h-4 opacity-70 group-hover:opacity-100" />
-                          <span>{nav.label}</span>
-                        </span>
-                      </button>
-                    );
-                  }
+              {/* Mobile Apply Button */}
+              <button
+                onClick={handleApply}
+                className="lg:hidden glass glass--frosted p-2.5 rounded-full border transition-transform duration-200 active:scale-95"
+                style={{ borderColor: 'hsl(var(--border) / 0.4)' }}
+                aria-label="Apply now"
+              >
+                <Send width={16} height={16} strokeWidth={1.6} style={{ color: 'hsl(var(--gold))' }} />
+              </button>
 
-                  if (nav.type === "dropdown") {
-                    const dropdown = nav.id === "about" ? aboutDropdown : academicsDropdown;
-                    return (
-                      <div key={nav.id} ref={dropdown.ref} className="relative">
-                        <button
-                          onClick={dropdown.toggle}
-                          aria-expanded={dropdown.open}
-                          className="group relative inline-flex items-center gap-2 px-3 py-2 
-                            rounded-lg text-sm font-semibold text-foreground/75 
-                            hover:text-foreground transition-colors"
-                        >
-                          <NavIcon Icon={nav.icon} className="w-4 h-4 opacity-70 group-hover:opacity-100" />
-                          <span>{nav.label}</span>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${dropdown.open ? "rotate-180" : ""}`}
-                            strokeWidth={1.6}
-                          />
-                        </button>
-
-                        <DropdownPanel
-                          items={nav.items}
-                          open={dropdown.open}
-                          onNavigate={handleNavigate}
-                        />
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
-              </nav>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleApply}
-                  className="hidden lg:flex items-center gap-2 px-6 py-2.5 rounded-full 
-                    bg-gradient-to-r from-card via-primary/8 to-card text-primary 
-                    font-bold text-sm border border-border/20 shadow-glass-md 
-                    hover:shadow-glass-lg transition-all"
-                >
-                  <Send className="w-4 h-4" strokeWidth={1.6} />
-                  Apply Now
-                </button>
-
-                <button
-                  onClick={handleApply}
-                  className="lg:hidden glass glass--frosted p-2.5 rounded-full border border-border/50"
-                  aria-label="Apply now"
-                >
-                  <Send className="w-4 h-4 text-gold" strokeWidth={1.6} />
-                </button>
-
-                <button
-                  onClick={() => setMobileOpen(!mobileOpen)}
-                  className="lg:hidden glass glass--frosted p-2.5 rounded-full border border-border/50"
-                  aria-label="Toggle menu"
-                >
-                  {mobileOpen ? (
-                    <X className="w-5 h-5" strokeWidth={1.6} />
-                  ) : (
-                    <Menu className="w-5 h-5" strokeWidth={1.6} />
-                  )}
-                </button>
-              </div>
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={toggleMobile}
+                className="lg:hidden glass glass--frosted p-2.5 rounded-full border transition-transform duration-200 active:scale-95"
+                style={{ borderColor: 'hsl(var(--border) / 0.4)' }}
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
+              >
+                {mobileOpen ? (
+                  <X width={20} height={20} strokeWidth={1.6} />
+                ) : (
+                  <Menu width={20} height={20} strokeWidth={1.6} />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -347,37 +427,53 @@ const Navbar = memo(function Navbar({ className = "", scrollToSection }) {
       {/* Spacer */}
       <div aria-hidden="true" className="h-20 lg:h-24" />
 
-      {/* Mobile Menu - NO Framer Motion, Pure CSS */}
+      {/* Mobile Menu */}
       {mobileOpen && (
         <>
           {/* Backdrop */}
           <div
-            onClick={() => setMobileOpen(false)}
-            className="fixed inset-0 bg-background/80 z-40 lg:hidden animate-fade-in"
-            style={{ animation: 'fadeIn 0.2s ease-out' }}
+            onClick={closeMobile}
+            className="fixed inset-0 z-40 lg:hidden"
+            style={{
+              background: 'hsl(var(--background) / 0.8)',
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+            aria-hidden="true"
           />
 
-          {/* Sidebar - REMOVED backdrop-blur */}
+          {/* Sidebar */}
           <aside
-            className="fixed top-20 right-0 bottom-0 w-[85vw] max-w-sm z-50 lg:hidden animate-slide-in"
-            style={{ animation: 'slideInRight 0.25s ease-out' }}
+            className="fixed top-20 right-0 bottom-0 w-[85vw] max-w-sm z-50 lg:hidden"
+            style={{ animation: 'slideIn 0.25s ease-out' }}
             aria-label="Mobile menu"
           >
             <div className="glass glass--frosted glass--deep h-full overflow-y-auto">
-              <div className="relative z-10 p-6 space-y-2">
+              <div className="glass__noise" />
+              <div className="relative z-10 p-5 space-y-1.5">
                 {NAV_STRUCTURE.map((nav) => {
                   if (nav.type === "link") {
                     return (
                       <button
                         key={nav.id}
                         onClick={() => handleNavigate(nav.href ?? nav.id)}
-                        className="w-full flex items-center gap-3 p-4 rounded-xl text-left 
-                          font-semibold text-foreground/80 hover:text-foreground 
-                          hover:bg-gradient-to-r hover:from-primary/10 hover:to-gold/5 
-                          transition-colors"
+                        className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left font-semibold transition-all duration-200 active:scale-[0.98]"
+                        style={{ color: 'hsl(var(--foreground) / 0.8)' }}
+                        onTouchStart={(e) => {
+                          e.currentTarget.style.color = 'hsl(var(--foreground))';
+                          e.currentTarget.style.background = 'linear-gradient(to right, hsl(var(--primary) / 0.1), hsl(var(--gold) / 0.05))';
+                        }}
+                        onTouchEnd={(e) => {
+                          e.currentTarget.style.color = 'hsl(var(--foreground) / 0.8)';
+                          e.currentTarget.style.background = 'transparent';
+                        }}
                       >
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-primary/18 to-gold/10">
-                          <nav.icon className="w-5 h-5 text-gold" strokeWidth={1.6} />
+                        <div
+                          className="p-2 rounded-lg"
+                          style={{
+                            background: 'linear-gradient(to bottom right, hsl(var(--primary) / 0.15), hsl(var(--gold) / 0.1))',
+                          }}
+                        >
+                          <NavIcon Icon={nav.icon} size={20} />
                         </div>
                         <span>{nav.label}</span>
                       </button>
@@ -390,26 +486,42 @@ const Navbar = memo(function Navbar({ className = "", scrollToSection }) {
                       <div key={nav.id} ref={dropdown.ref}>
                         <button
                           onClick={dropdown.toggle}
-                          className="w-full flex items-center justify-between gap-3 p-4 
-                            rounded-xl text-left font-semibold text-foreground/80 
-                            hover:text-foreground hover:bg-gradient-to-r 
-                            hover:from-primary/10 hover:to-gold/5 transition-colors"
+                          className="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl text-left font-semibold transition-all duration-200 active:scale-[0.98]"
+                          style={{ color: 'hsl(var(--foreground) / 0.8)' }}
+                          onTouchStart={(e) => {
+                            e.currentTarget.style.color = 'hsl(var(--foreground))';
+                            e.currentTarget.style.background = 'linear-gradient(to right, hsl(var(--primary) / 0.1), hsl(var(--gold) / 0.05))';
+                          }}
+                          onTouchEnd={(e) => {
+                            e.currentTarget.style.color = 'hsl(var(--foreground) / 0.8)';
+                            e.currentTarget.style.background = 'transparent';
+                          }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/18 to-gold/10">
-                              <nav.icon className="w-5 h-5 text-gold" strokeWidth={1.6} />
+                            <div
+                              className="p-2 rounded-lg"
+                              style={{
+                                background: 'linear-gradient(to bottom right, hsl(var(--primary) / 0.15), hsl(var(--gold) / 0.1))',
+                              }}
+                            >
+                              <NavIcon Icon={nav.icon} size={20} />
                             </div>
                             <span>{nav.label}</span>
                           </div>
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform ${dropdown.open ? "rotate-180" : ""}`}
+                            width={16}
+                            height={16}
                             strokeWidth={1.6}
+                            style={{
+                              transform: dropdown.open ? 'rotate(180deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s ease',
+                            }}
                           />
                         </button>
 
                         <MobileDropdown
                           items={nav.items}
-                          open={dropdown.open}
+                          isOpen={dropdown.open}
                           onNavigate={handleNavigate}
                         />
                       </div>
@@ -418,13 +530,16 @@ const Navbar = memo(function Navbar({ className = "", scrollToSection }) {
                   return null;
                 })}
 
+                {/* Mobile Apply Button */}
                 <button
                   onClick={handleApply}
-                  className="w-full mt-6 flex items-center justify-center gap-2 px-6 py-4 
-                    rounded-xl bg-gradient-to-r from-primary via-gold to-emerald 
-                    text-primary-foreground font-bold transition-opacity"
+                  className="w-full mt-5 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold transition-all duration-200 active:scale-[0.98]"
+                  style={{
+                    background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--gold))',
+                    color: 'hsl(var(--primary-foreground))',
+                  }}
                 >
-                  <Send className="w-5 h-5" strokeWidth={1.6} />
+                  <Send width={20} height={20} strokeWidth={1.6} />
                   Apply Now
                 </button>
               </div>
@@ -433,15 +548,19 @@ const Navbar = memo(function Navbar({ className = "", scrollToSection }) {
         </>
       )}
 
-      {/* Add CSS animations */}
+      {/* Lightweight CSS animations */}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes slideInRight {
+        @keyframes slideIn {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
+        }
+        @keyframes dropdownFade {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>

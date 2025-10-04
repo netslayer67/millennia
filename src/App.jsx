@@ -36,7 +36,10 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const KinderPage = lazy(() => import('./pages/KinderPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ElemenPage = lazy(() => import('./pages/ElemenPage'));
+const JuniorPage = lazy(() => import('./pages/JuniorPage'));
+const CurriculumPage = lazy(() => import('./pages/CurriculumPage'));
 const DetailArticle = lazy(() => import('./pages/DetailArticle'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
 
 // Small helper: central toast for CTA placeholders
 const handleCTAClick = (action) => {
@@ -97,6 +100,9 @@ function AppRoutes() {
         {/* Lazy pages */}
         <Route path="/articel/:id" element={<DetailArticle />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/curriculum" element={<CurriculumPage />} />
+        <Route path="/junior" element={<JuniorPage />} />
         <Route path="/kinder" element={<KinderPage />} />
         <Route path="/elemen" element={<ElemenPage />} />
         <Route path="/faqs" element={<FaqPage />} />
