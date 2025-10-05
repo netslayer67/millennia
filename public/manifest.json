@@ -1,21 +1,130 @@
 {
-  "name": "Millennia World School",
+  "name": "Millennia World School - Sekolah Internasional Terbaik",
   "short_name": "Millennia WS",
-  "description": "Sekolah Internasional Terbaik di Indonesia",
+  "description": "Sekolah internasional terbaik, bagus, favorit & modern di Indonesia. Kurikulum Cambridge & Waldorf untuk TK, SD, SMP.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
   "theme_color": "#8B1538",
+  "background_color": "#ffffff",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["education", "lifestyle"],
   "icons": [
+    {
+      "src": "/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Millennia World School Homepage on Mobile"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Millennia World School Homepage on Desktop"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pendaftaran",
+      "short_name": "Daftar",
+      "description": "Daftar siswa baru",
+      "url": "/admission",
+      "icons": [
+        {
+          "src": "/shortcut-admission.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Hubungi Kami",
+      "short_name": "Kontak",
+      "description": "Hubungi tim admisi",
+      "url": "/contact",
+      "icons": [
+        {
+          "src": "/shortcut-contact.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Program",
+      "short_name": "Program",
+      "description": "Lihat program pendidikan",
+      "url": "/kinder",
+      "icons": [
+        {
+          "src": "/shortcut-programs.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

@@ -1,9 +1,59 @@
+# robots.txt untuk Millennia World School
+# Mengizinkan semua search engine crawler untuk indexing optimal
+
 User-agent: *
 Allow: /
-Sitemap: https://millenniaws.sch.id/sitemap.xml
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /*?*print=
+Disallow: /*?*sessionid=
 
+# Specific bot rules
 User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
 Allow: /
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 0
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://millenniaws.sch.id/sitemap.xml
+Sitemap: https://millenniaws.sch.id/sitemap-pages.xml
+Sitemap: https://millenniaws.sch.id/sitemap-blog.xml
+
+# Host preference
+Host: https://millenniaws.sch.id

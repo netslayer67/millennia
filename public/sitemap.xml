@@ -1,15 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://millenniaws.sch.id/</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://millenniaws.sch.id/about</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Tambahkan semua pages -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+	<!-- Homepage - Priority tertinggi -->
+	<url>
+		<loc>https://millenniaws.sch.id/</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+		<image:image>
+			<image:loc>https://millenniaws.sch.id/og-image-millennia.jpg</image:loc>
+			<image:title>Millennia World School - Sekolah Internasional Terbaik</image:title>
+			<image:caption>Sekolah internasional terbaik di Indonesia</image:caption>
+		</image:image>
+	</url>
+
+	<!-- About Page -->
+	<url>
+		<loc>https://millenniaws.sch.id/about</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.9</priority>
+	</url>
+
+	<!-- Programs - High priority -->
+	<url>
+		<loc>https://millenniaws.sch.id/kinder</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.9</priority>
+	</url>
+
+	<url>
+		<loc>https://millenniaws.sch.id/elemen</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.9</priority>
+	</url>
+
+	<url>
+		<loc>https://millenniaws.sch.id/junior</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.9</priority>
+	</url>
+
+	<!-- Curriculum -->
+	<url>
+		<loc>https://millenniaws.sch.id/curriculum</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.8</priority>
+	</url>
+
+	<!-- Admission - Important for conversions -->
+	<url>
+		<loc>https://millenniaws.sch.id/admission</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.95</priority>
+	</url>
+
+	<!-- FAQs -->
+	<url>
+		<loc>https://millenniaws.sch.id/faqs</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.7</priority>
+	</url>
+
+	<!-- Blog -->
+	<url>
+		<loc>https://millenniaws.sch.id/blog</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>daily</changefreq>
+		<priority>0.8</priority>
+	</url>
+
+	<!-- Blog Articles - Add as you create them -->
+	<url>
+		<loc>https://millenniaws.sch.id/blog/cara-memilih-sekolah-terbaik</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.7</priority>
+	</url>
+
+	<url>
+		<loc>https://millenniaws.sch.id/blog/biaya-sekolah-internasional-worth-it</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.7</priority>
+	</url>
+
+	<url>
+		<loc>https://millenniaws.sch.id/blog/kurikulum-cambridge-vs-waldorf</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.7</priority>
+	</url>
+
+	<!-- Contact -->
+	<url>
+		<loc>https://millenniaws.sch.id/contact</loc>
+		<lastmod>2025-01-15</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.8</priority>
+	</url>
+
 </urlset>
