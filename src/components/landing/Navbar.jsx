@@ -11,6 +11,10 @@ import {
   Users,
   Calendar
 } from "lucide-react";
+import NavIcon from "./navbar/NavIcon";
+import DropdownPanel from "./navbar/DropdownPanel";
+import MobileDropdown from "./navbar/MobileDropdown";
+import useDropdown from "./navbar/useDropdown";
 
 const LOGO_SRC = "/Millennia.webp";
 
@@ -56,129 +60,6 @@ const NAV_STRUCTURE = [
   { type: "link", id: "blog", label: "Blog", icon: BookOpen, href: "/blog" },
   { type: "link", id: "contact", label: "Contact", icon: MessageCircle, href: "/contact" },
 ];
-
-// Optimized dropdown hook (minimal state updates)
-function useDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  const closeTimeoutRef = useRef(null);
-
-  const toggle = useCallback(() => setOpen((v) => !v), []);
-  const close = useCallback(() => setOpen(false), []);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const onPointer = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        close();
-      }
-    };
-
-    const onKey = (e) => {
-      if (e.key === "Escape") close();
-    };
-
-    // Use capture phase for better performance
-    document.addEventListener("pointerdown", onPointer, { capture: true, passive: true });
-    document.addEventListener("keydown", onKey, { passive: true });
-
-    return () => {
-      document.removeEventListener("pointerdown", onPointer, { capture: true });
-      document.removeEventListener("keydown", onKey);
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-    };
-  }, [open, close]);
-
-  return { open, toggle, close, ref };
-}
-
-// Lightweight icon wrapper (prevents re-renders)
-const NavIcon = memo(({ Icon, size = 16 }) => (
-  <Icon width={size} height={size} strokeWidth={1.6} aria-hidden="true" />
-));
-NavIcon.displayName = "NavIcon";
-
-// Desktop dropdown panel (no animations, pure CSS)
-const DropdownPanel = memo(({ items, isOpen, onNavigate }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="absolute left-0 top-full mt-2 z-50">
-      <div
-        className="glass glass--frosted rounded-xl border overflow-hidden shadow-lg min-w-[220px]"
-        style={{
-          borderColor: 'hsl(var(--border) / 0.3)',
-          animation: 'dropdownFade 0.15s ease-out'
-        }}
-      >
-        <div className="glass__noise" />
-        <ul role="menu" className="relative z-10 p-2 space-y-0.5">
-          {items.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => onNavigate(item.href ?? item.id)}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                style={{
-                  color: 'hsl(var(--foreground) / 0.8)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  e.currentTarget.style.background = 'linear-gradient(to right, hsl(var(--primary) / 0.08), hsl(var(--gold) / 0.04))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--foreground) / 0.8)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
-                role="menuitem"
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-});
-DropdownPanel.displayName = "DropdownPanel";
-
-// Mobile dropdown (lightweight)
-const MobileDropdown = memo(({ items, isOpen, onNavigate }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="pl-3 mt-1 space-y-0.5">
-      {items.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => onNavigate(item.href ?? item.id)}
-          className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
-          style={{
-            color: 'hsl(var(--foreground) / 0.75)',
-          }}
-          onTouchStart={(e) => {
-            e.currentTarget.style.color = 'hsl(var(--foreground))';
-            e.currentTarget.style.background = 'hsl(var(--surface) / 0.5)';
-          }}
-          onTouchEnd={(e) => {
-            e.currentTarget.style.color = 'hsl(var(--foreground) / 0.75)';
-            e.currentTarget.style.background = 'transparent';
-          }}
-        >
-          <span className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ background: 'hsl(var(--gold) / 0.6)' }}
-            />
-            {item.label}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-});
-MobileDropdown.displayName = "MobileDropdown";
 
 // Main Navbar
 const Navbar = memo(function Navbar({ scrollToSection }) {

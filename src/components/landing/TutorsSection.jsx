@@ -143,6 +143,8 @@ const TutorsSection = ({ tutors, handleCTAClick }) => {
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     src={tutor.image || 'https://images.unsplash.com/photo-1660485344976-e24706f5ba78'}
                                     alt={tutor.name}
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                                 <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
                                     <Star className="size-3.5 text-yellow-400 fill-yellow-400" />

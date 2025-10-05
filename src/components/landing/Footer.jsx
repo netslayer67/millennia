@@ -7,6 +7,9 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import Icon from "./footer/Icon";
+import SocialButton from "./footer/SocialButton";
+import ContactRow from "./footer/ContactRow";
 
 const LOGO_SRC = "/MWS-Long.svg";
 
@@ -33,42 +36,6 @@ const sanitizeEmail = (str = "") => {
     .trim()
     .slice(0, 100);
 };
-
-// Lightweight icon wrapper
-const Icon = memo(({ Component, size = 16 }) => (
-  <Component width={size} height={size} strokeWidth={1.6} aria-hidden="true" />
-));
-Icon.displayName = "Icon";
-
-// Social button component
-const SocialButton = memo(({ IconComp, label, href }) => (
-  <a
-    href={sanitizeHref(href)}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={label}
-    className="glass p-2.5 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-    style={{
-      background: 'linear-gradient(135deg, hsl(var(--muted)), hsl(var(--surface)))',
-      border: '1px solid hsl(var(--border) / 0.3)',
-      color: 'hsl(var(--foreground))',
-    }}
-  >
-    <Icon Component={IconComp} size={20} />
-  </a>
-));
-SocialButton.displayName = "SocialButton";
-
-// Contact info row
-const ContactRow = memo(({ IconComp, text, iconColor = 'hsl(var(--emerald))' }) => (
-  <div className="flex items-center gap-2" style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))' }}>
-    <span style={{ color: iconColor }}>
-      <Icon Component={IconComp} size={16} />
-    </span>
-    <span>{text}</span>
-  </div>
-));
-ContactRow.displayName = "ContactRow";
 
 // Main Footer Component
 const Footer = memo(function Footer({ scrollToSection }) {

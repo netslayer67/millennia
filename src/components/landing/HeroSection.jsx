@@ -1,6 +1,9 @@
 import React, { memo, useMemo, useCallback, useRef } from 'react';
 import { m, useReducedMotion, LazyMotion, domAnimation } from 'framer-motion';
 import { ArrowRight, Award, Users, GraduationCap, Sparkles } from 'lucide-react';
+import StatCard from './hero/StatCard';
+import FloatingCard from './hero/FloatingCard';
+import BackgroundBlob from './hero/BackgroundBlob';
 
 // ---------- Optimized Motion variants (frozen objects to prevent recreation) ----------
 const motionVariants = Object.freeze({
@@ -17,14 +20,6 @@ const motionVariants = Object.freeze({
       opacity: 1,
       y: 0,
       transition: { duration: 0.7, ease: [0.2, 0.9, 0.1, 1] },
-    }),
-  }),
-  blob: Object.freeze({
-    hidden: { opacity: 0, scale: 0.85 },
-    visible: Object.freeze({
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 1.4, ease: [0.2, 0.9, 0.1, 1] },
     }),
   }),
 });
@@ -57,47 +52,6 @@ const COLOR_CLASSES = Object.freeze({
 const HERO_BG = '/bg.webp';
 const GRID_BACKGROUND = 'absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))_1px,transparent_1px)] bg-[length:40px_40px] md:bg-[length:56px_56px]';
 const MASK_STYLE = Object.freeze({ maskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 75%)' });
-
-// ---------- Memoized StatCard component ----------
-const StatCard = memo(({ stat, colorConfig }) => (
-  <div className={colorConfig.borderClass}>
-    <div className="glass__refract" />
-    <div className="glass__noise" />
-    <div className="flex flex-col items-center sm:items-start gap-1 sm:gap-1.5">
-      <stat.Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${colorConfig.iconClass}`} />
-      <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground">{stat.value}</span>
-      <span className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">{stat.label}</span>
-    </div>
-  </div>
-));
-StatCard.displayName = 'StatCard';
-
-// ---------- Memoized FloatingCard component ----------
-const FloatingCard = memo(({ className, children, variants }) => (
-  <m.div
-    variants={variants}
-    className={`absolute glass glass-card shadow-glass-md hover:-translate-y-1 transition-all duration-300 cursor-default ${className}`}
-  >
-    <div className="glass__noise" />
-    <div className="text-center">
-      {children}
-    </div>
-  </m.div>
-));
-FloatingCard.displayName = 'FloatingCard';
-
-// ---------- Memoized BackgroundBlob component ----------
-const BackgroundBlob = memo(({ className, shouldReduceMotion, style = {} }) => (
-  <m.div
-    variants={motionVariants.blob}
-    initial={shouldReduceMotion ? false : 'hidden'}
-    animate={shouldReduceMotion ? false : 'visible'}
-    className={className}
-    style={style}
-    aria-hidden="true"
-  />
-));
-BackgroundBlob.displayName = 'BackgroundBlob';
 
 // ---------- Main HeroSection component ----------
 const HeroSection = ({ scrollToSection }) => {

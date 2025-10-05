@@ -1,203 +1,18 @@
-import React, { memo, useState, useRef, useCallback, useMemo } from "react";
-import { motion, useReducedMotion, useInView, domAnimation } from "framer-motion";
+import React, { memo, useState, useCallback, useMemo } from "react";
+import { motion, useReducedMotion, domAnimation } from "framer-motion";
 import {
-    CheckCircle, ChevronDown, ChevronUp, Star, BookOpen, Palette, Heart,
-    Globe, Sun, Users, Sparkles
+    Star, BookOpen, Palette, Users, ChevronDown
 } from "lucide-react";
-
-// Static data moved outside component to prevent recreation
-const RHYTHM_INTRO = [
-    "In Kindergarten, we believe children are carried along by the rhythms of the world—from breathing to daily cycles of sleeping and waking. Children flourish when daily activities reflect natural order with rhythmic arrangement.",
-    "Rhythm provides fixed anchors: mealtimes, bedtime, playtime, work time. Once established, rhythm is deeply soothing—children know what's next without verbal instructions, creating safe boundaries and a predictable, secure world.",
-    "Rhythm develops around daily, weekly, and seasonal patterns. Children anticipate activities and \"breathe\" in and out (balancing individual/group, restful/active) from quiet story circles to rigorous work and play.",
-    "Teachers carefully balance activities so children don't become overwhelmed. This rhythm isn't imposed—it arises from physical needs of children and teachers, assisting development, providing security, and preventing overstimulation.",
-    "Transitions (coming indoors, moving between activities) are made with songs and short games, reducing stress."
-];
-
-const RHYTHM_ASPECTS = [
-    {
-        id: "seasonal",
-        icon: Sun,
-        title: "Seasonal Rhythms",
-        desc: "Activities aligned with nature's cycles",
-        full: "Activities and celebrations matched to seasons help children understand cycles in nature and their community, grounding learning in observable patterns.",
-        color: "primary"
-    },
-    {
-        id: "culture",
-        icon: Globe,
-        title: "Indonesian Culture",
-        desc: "Local traditions woven into daily life",
-        full: "We emphasize the culture of the place where we live—local songs, stories, and traditions are integrated into daily routines, celebrating our community's heritage.",
-        color: "gold"
-    },
-    {
-        id: "celebrations",
-        icon: Heart,
-        title: "Religious Celebrations",
-        desc: "Eid, Christmas, and major festivals",
-        full: "Major celebrations like Eid and Christmas are respectfully observed as part of our community rhythm, fostering understanding and appreciation.",
-        color: "emerald"
-    }
-];
-
-const PROGRAM_TEXT = [
-    "Our kindergarten program develops children's imagination, inspires wonder, and instills appreciation for life.",
-    "Activities foster practical experience of concepts and skills foundational to later literacy, numeracy, and life skills.",
-    "Our curriculum utilizes a full range of creative activities appropriate for young minds."
-];
-
-const ACTIVITIES_IMAGES = [
-    { id: 1, title: "Story Circle", desc: "Quiet reflection time", color: "primary" },
-    { id: 2, title: "Creative Arts", desc: "Hands-on expression", color: "gold" },
-    { id: 3, title: "Music & Movement", desc: "Rhythmic transitions", color: "emerald" },
-    { id: 4, title: "Outdoor Play", desc: "Active exploration", color: "primary" }
-];
-
-const NICHE_IMAGES = [
-    { id: 1, title: "Nature Studies", desc: "Environmental learning", color: "emerald" },
-    { id: 2, title: "Cultural Arts", desc: "Traditional crafts", color: "gold" },
-    { id: 3, title: "Mindful Movement", desc: "Body awareness", color: "primary" },
-    { id: 4, title: "Storytelling", desc: "Narrative imagination", color: "gold" }
-];
-
-// Memoized color map to prevent object recreation
-const COLOR_MAP = {
-    primary: 'hsl(var(--primary))',
-    gold: 'hsl(var(--gold))',
-    emerald: 'hsl(var(--emerald))'
-};
-
-// Optimized Blob with minimal props
-const Blob = memo(({ className, size = "md" }) => {
-    const sizeClass = size === "sm" ? "w-64 h-64" : size === "lg" ? "w-96 h-96" : "w-80 h-80";
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.2, 0.9, 0.1, 1] }}
-            className={`absolute pointer-events-none rounded-full blur-3xl ${sizeClass} ${className}`}
-            style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, transparent 70%)' }}
-        />
-    );
-});
-Blob.displayName = "Blob";
-
-// Optimized AspectCard with useCallback
-const AspectCard = memo(({ item, index }) => {
-    const [open, setOpen] = useState(false);
-    const Icon = item.icon;
-    const ref = useRef(null);
-    const inView = useInView(ref, { once: true, amount: 0.3 });
-
-    const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
-
-    const colorVar = useMemo(() => `hsl(var(--${item.color}))`, [item.color]);
-
-    return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: index * 0.1, ease: [0.2, 0.9, 0.1, 1] }}
-            className="group"
-        >
-            <div className="glass hover-lift h-full transition-all duration-300">
-                <div className="glass__noise" />
-
-                <div className="relative p-4 md:p-5">
-                    <button
-                        onClick={toggleOpen}
-                        className="w-full text-left"
-                        aria-expanded={open}
-                        aria-label={`Toggle ${item.title} details`}
-                    >
-                        <div className="flex items-start gap-3 mb-3">
-                            <div
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md transition-transform duration-300 group-hover:scale-105"
-                                style={{ background: colorVar, color: 'hsl(var(--card))' }}
-                            >
-                                <Icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-
-                            <div className="flex-1">
-                                <h4 className="text-base md:text-lg font-bold text-[hsl(var(--foreground))] mb-1 group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
-                                    {item.title}
-                                </h4>
-                                <p className="text-xs md:text-sm text-[hsl(var(--muted-foreground))]">
-                                    {item.desc}
-                                </p>
-                            </div>
-
-                            <div className="shrink-0">
-                                {open ? <ChevronUp className="w-4 h-4 text-[hsl(var(--primary))]" /> : <ChevronDown className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />}
-                            </div>
-                        </div>
-                    </button>
-
-                    {open && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="pl-0 md:pl-15 pt-2 border-t border-[hsl(var(--border))] mt-2"
-                        >
-                            <p className="text-xs md:text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
-                                {item.full}
-                            </p>
-                        </motion.div>
-                    )}
-                </div>
-            </div>
-        </motion.div>
-    );
-});
-AspectCard.displayName = "AspectCard";
-
-// Optimized GalleryCard
-const GalleryCard = memo(({ item, index }) => {
-    const ref = useRef(null);
-    const inView = useInView(ref, { once: true, amount: 0.2 });
-
-    const bgGradient = useMemo(() => {
-        const color = COLOR_MAP[item.color];
-        return `linear-gradient(135deg, ${color}, ${color}dd)`;
-    }, [item.color]);
-
-    return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: index * 0.08, ease: [0.2, 0.9, 0.1, 1] }}
-            className="group"
-        >
-            <div className="glass hover-lift h-full transition-all duration-300 overflow-hidden">
-                <div className="glass__noise" />
-
-                <div className="relative h-40 md:h-48 w-full overflow-hidden" style={{ background: bgGradient }}>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-[hsl(var(--card)/0.2)] backdrop-blur-sm flex items-center justify-center">
-                            <Sparkles className="w-8 h-8 text-[hsl(var(--card))]" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="relative p-3 md:p-4">
-                    <h4 className="text-sm md:text-base font-bold text-[hsl(var(--foreground))] mb-1 group-hover:text-[hsl(var(--primary))] transition-colors duration-300">
-                        {item.title}
-                    </h4>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                        {item.desc}
-                    </p>
-                </div>
-            </div>
-        </motion.div>
-    );
-});
-GalleryCard.displayName = "GalleryCard";
+import {
+    RHYTHM_INTRO,
+    RHYTHM_ASPECTS,
+    PROGRAM_TEXT,
+    ACTIVITIES_IMAGES,
+    NICHE_IMAGES
+} from "../data/kinderData";
+import Blob from "./kinder/Blob";
+import AspectCard from "./kinder/AspectCard";
+import GalleryCard from "./kinder/GalleryCard";
 
 // Main Component
 function KinderPage() {
@@ -420,3 +235,26 @@ function KinderPage() {
 }
 
 export default memo(KinderPage);
+
+// CSS Animations
+const styles = `
+    @keyframes blobFadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        [style*="blobFadeIn"] {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+    }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+}
