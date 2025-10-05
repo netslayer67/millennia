@@ -283,7 +283,7 @@ ContactForm.displayName = "ContactForm";
 const MapSection = memo(() => {
     const [mapOpen, setMapOpen] = useState(false);
     const address = "Jl. Merpati Raya No.103, Sawah Lama, Kec. Ciputat, Kota Tangerang Selatan, Banten 15413";
-    const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+    const mapSrc = `https://www.google.com/maps/place/Millennia+World+School/@-6.2998397,106.729462,17z/data=!3m1!4b1!4m6!3m5!1s0x2e69f01d594e5df1:0x8820de6148c696a!8m2!3d-6.2998397!4d106.7320369!16s%2Fg%2F11c6cpk2pg?entry=ttu&g_ep=EgoyMDI1MTAwMS4wIKXMDSoASAFQAw%3D%3D`;
 
     return (
         <div className="glass rounded-2xl overflow-hidden" style={{ minHeight: 200 }}>
