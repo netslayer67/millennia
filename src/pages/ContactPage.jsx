@@ -1,5 +1,5 @@
 // src/pages/ContactPage.jsx
-import React, { memo, useState, useRef, useEffect } from "react";
+import React, { memo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Check, AlertCircle, Loader2 } from "lucide-react";
 
@@ -281,47 +281,37 @@ ContactForm.displayName = "ContactForm";
 
 /* ---------------------- Map Component ---------------------- */
 const MapSection = memo(() => {
-    const [mapOpen, setMapOpen] = useState(false);
     const address = "Jl. Merpati Raya No.103, Sawah Lama, Kec. Ciputat, Kota Tangerang Selatan, Banten 15413";
-    const mapSrc = `https://www.google.com/maps/place/Millennia+World+School/@-6.2998397,106.729462,17z/data=!3m1!4b1!4m6!3m5!1s0x2e69f01d594e5df1:0x8820de6148c696a!8m2!3d-6.2998397!4d106.7320369!16s%2Fg%2F11c6cpk2pg?entry=ttu&g_ep=EgoyMDI1MTAwMS4wIKXMDSoASAFQAw%3D%3D`;
+    const mapsUrl = "https://www.google.com/maps/place/Millennia+World+School/@-6.2998397,106.7320369,17z/data=!4m14!1m7!3m6!1s0x2e69f01d594e5df1:0x8820de6148c696a!2sMillennia+World+School!8m2!3d-6.2998397!4d106.7320369!16s%2Fg%2F11c6cpk2pg";
 
     return (
         <div className="glass rounded-2xl overflow-hidden" style={{ minHeight: 200 }}>
             <div className="glass__noise" />
-            {!mapOpen ? (
-                <div className="h-48 sm:h-56 flex items-center justify-center p-6">
-                    <div className="text-center space-y-3">
-                        <MapPin className="w-10 h-10 mx-auto" style={{ color: "hsl(var(--primary))" }} />
-                        <div>
-                            <div className="text-sm font-semibold mb-1" style={{ color: "hsl(var(--foreground))" }}>
-                                Location on Map
-                            </div>
-                            <div className="text-[11px] mb-3" style={{ color: "hsl(var(--muted-foreground))" }}>
-                                Click to load interactive map
-                            </div>
+            <div className="h-48 sm:h-56 flex items-center justify-center p-6">
+                <div className="text-center space-y-3">
+                    <MapPin className="w-10 h-10 mx-auto" style={{ color: "hsl(var(--primary))" }} />
+                    <div>
+                        <div className="text-sm font-semibold mb-1" style={{ color: "hsl(var(--foreground))" }}>
+                            Millennia World School Location
                         </div>
-                        <button
-                            onClick={() => setMapOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-300"
-                            style={{
-                                background: "hsl(var(--primary))",
-                                color: "hsl(var(--primary-foreground))",
-                            }}
-                        >
-                            Open Map
-                        </button>
+                        <div className="text-[11px] mb-3" style={{ color: "hsl(var(--muted-foreground))" }}>
+                            {address}
+                        </div>
                     </div>
+                    <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-300 hover:scale-105"
+                        style={{
+                            background: "hsl(var(--primary))",
+                            color: "hsl(var(--primary-foreground))",
+                        }}
+                    >
+                        View on Google Maps
+                    </a>
                 </div>
-            ) : (
-                <iframe
-                    title="Millennia World School Location"
-                    src={mapSrc}
-                    loading="lazy"
-                    allowFullScreen
-                    className="w-full h-48 sm:h-64"
-                    style={{ border: 0 }}
-                />
-            )}
+            </div>
         </div>
     );
 });
