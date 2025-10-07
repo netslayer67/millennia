@@ -398,7 +398,7 @@ function ContactPage() {
                                     Start your journey with Millennia World School today.
                                 </div>
                                 <a
-                                    href="/admissions"
+                                    href="/admission    "
                                     className="block text-center px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-300"
                                     style={{
                                         background: "hsl(var(--primary))",

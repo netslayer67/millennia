@@ -100,13 +100,6 @@ const FaqPage = () => {
                 {/* Page header */}
                 <FaqHeader />
 
-                {/* Category filter */}
-                <FaqFilter
-                    categories={FAQ_CATEGORIES}
-                    activeCategory={activeCategory}
-                    onCategoryChange={handleCategoryChange}
-                />
-
                 {/* FAQ accordion list */}
                 <section
                     aria-labelledby="faq-heading"
